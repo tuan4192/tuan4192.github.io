@@ -1,0 +1,334 @@
+<header>
+    <style>
+        body {
+            color: red;
+        }
+        button:hover {
+            background-color: aqua;
+        }
+    </style>
+    <script
+    type="text/javascript"
+    src="https://unpkg.com/tone@latest/build/Tone.js"></script>
+    <script
+        type="text/javascript"
+        src="https://unpkg.com/@tonejs/ui@0.0.8/build/tonejs-ui.js"
+	></script>
+    <script src="https://unpkg.com/@tonejs/midi"></script>
+    <!-- <script type="text/javascript" src="external-js/Tone.js"></script> -->
+    <script type="text/javascript" src="Tonejs-Instruments.js"></script>
+    <script>
+        var rawSamp = ['classic-rock-kit', 'electric-bass-staccato', 'grand-piano', 'solo-violin','bass-electric','bassoon','cello','clarinet','contrabass','flute','french-horn','guitar-acoustic','guitar-electric','guitar-nylon', 'harmonium','harp','organ','piano','saxophone','trombone','trumpet','tuba','violin','xylophone']
+    </script>
+</header>
+<body style="background-color: rgb(220, 233, 232);">
+    <header>
+        <h1 style="text-align: center;">Demo change music instrument</h1>
+    </header>
+    <main>
+        <!-- <div style="text-align: center;">
+            <label class="button" id="fileBtn">
+                <input type="file" id="fileInput" multiple="" onchange="loadFile()">
+            </label>
+        </div> -->
+        <br>
+        <br>
+        <div class="content" style="margin-left: 20px;">
+            <ul style= "list-style:none;">
+                <li>
+                    <label class="button" id="fileBtn">
+                        <input type="file" id="fileInput1" multiple="" onchange="loadFile1()">
+                    </label>
+                    <button style="height: 30px;">solo</button>
+                    <button style="height: 30px; margin-left: 10px; width: 70px;">Melody</button>
+                    <select name="instrument" id="instrument1" style="height: 30px
+                    ; margin-left: 10px; width: 160px;" value='solo-violin'>
+                    </select>
+                </li>
+                <li style="margin-top: 10px;">
+                    <label class="button" id="fileBtn">
+                        <input type="file" id="fileInput2" multiple="" onchange="loadFile2()">
+                    </label>
+                    <button style="height: 30px;">solo</button>
+                    <button style="height: 30px; margin-left: 10px; width: 70px;">Chord</button>
+                    <select name="instrument" id="instrument2" style="height: 30px
+                    ; margin-left: 10px; width: 160px;">
+                    </select>
+                </li>
+                <li style="margin-top: 10px;">
+                    <label class="button" id="fileBtn">
+                        <input type="file" id="fileInput3" multiple="" onchange="loadFile3()">
+                    </label>
+                    <button style="height: 30px;">solo</button>
+                    <button style="height: 30px; margin-left: 10px; width: 70px;">Bass</button>
+                    <select name="instrument" id="instrument3" style="height: 30px
+                    ; margin-left: 10px; width: 160px;" value='electric-bass-staccato'>
+                    </select>
+                </li>
+                <li style="margin-top: 10px;">
+                    <label class="button" id="fileBtn">
+                        <input type="file" id="fileInput4" multiple="" onchange="loadFile4()">
+                    </label>
+                    <button style="height: 30px;">solo</button>
+                    <button style="height: 30px; margin-left: 10px; width: 70px;">Rhythm</button>
+                    <select name="instrument" id="instrument4" style="height: 30px
+                    ; margin-left: 10px; width: 160px;" value='grand-piano'>
+                    </select>
+                </li>
+            </ul>
+        </div>
+        <br><br>
+        <div style="text-align: center;">
+            <button id="play" onclick="playmidi()">Play</button>
+            <!-- <button onclick="downloadMidi()">Download</button> -->
+        </div>
+        <div>
+            <p id="debug"></p>
+        </div>
+    </main>
+</body>
+<script>
+    var choseHTML = `
+    `
+    rawSamp.forEach(element => {
+        choseHTML += `<option value=${element}>${element}</option>`
+    });
+    document.getElementById('instrument1').innerHTML = choseHTML
+    document.getElementById('instrument1').value = 'solo-violin'
+    document.getElementById('instrument2').innerHTML = '<option value="classic-rock-kit"> classic-rock-kit </option>'
+    document.getElementById('instrument3').innerHTML = choseHTML
+    document.getElementById('instrument3').value = 'electric-bass-staccato'
+    document.getElementById('instrument4').innerHTML = choseHTML
+    document.getElementById('instrument4').value = 'grand-piano'
+
+    var midi1 = null
+    var midi2 = null
+    var midi3 = null
+    var midi4 = null
+    const synths = []
+
+    async function loadFile1() {
+        console.log('aaaaa')
+        const fileEle = document.getElementById('fileInput1')
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            midi1 = new Midi(e.target.result);
+            var is = []
+            midi1.tracks.forEach(track => {
+                is.push(track.instrument)
+            })
+            const str = JSON.stringify(is);
+            console.log(str)
+        };
+        reader.readAsArrayBuffer(fileEle.files[0]);
+    }
+
+    async function loadFile2() {
+        console.log('bbbbb')
+        const fileEle = document.getElementById('fileInput2')
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            midi2 = new Midi(e.target.result);
+            var is = []
+            midi2.tracks.forEach(track => {
+                is.push(track.instrument)
+            })
+            const str = JSON.stringify(is);
+            console.log(str)
+        };
+        reader.readAsArrayBuffer(fileEle.files[0]);
+    }
+
+    async function loadFile3() {
+        console.log('ccccc')
+        const fileEle = document.getElementById('fileInput3')
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            midi3 = new Midi(e.target.result);
+            var is = []
+            midi3.tracks.forEach(track => {
+                is.push(track.instrument)
+            })
+            const str = JSON.stringify(is);
+            console.log(str)
+        };
+        reader.readAsArrayBuffer(fileEle.files[0]);
+    }
+
+    async function loadFile4() {
+        console.log('ddddd')
+        const fileEle = document.getElementById('fileInput4')
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            midi4 = new Midi(e.target.result);
+            var is = []
+            midi4.tracks.forEach(track => {
+                is.push(track.instrument)
+            })
+            const str = JSON.stringify(is);
+            console.log(str)
+        };
+        reader.readAsArrayBuffer(fileEle.files[0]);
+    }
+
+    var current1
+    var current2
+    var current3
+    var current4
+
+    var sampsStrings
+    var loadCount
+    const maxTime = 300
+
+    function playmidi() {
+        const e = document.getElementById('play')
+        loadCount = 0
+        if (e.innerText == "Play") {
+            e.innerText = "Pause"
+            
+            sampsStrings = [
+                document.getElementById('instrument1').value,
+                document.getElementById('instrument2').value,
+                document.getElementById('instrument3').value,
+                document.getElementById('instrument4').value,
+            ]
+
+            // loadCount += 1
+            var drum = SampleLibrary.loadDrum({
+                onload: () => {
+                    // console.log('load drum finish')
+                    // loadCount -=1
+                    // play()
+                }
+            })
+
+            loadCount += 1
+            var samples = SampleLibrary.load({
+                instruments: sampsStrings,
+                baseUrl: "/samples/",
+                ext: '.mp3',
+                onload: () => {
+                    console.log('load finish')
+                    console.log(sampsStrings)
+                    loadCount -=1
+                    play()
+                }
+            })
+            current1 = samples[sampsStrings[0]];
+            current2 = samples[sampsStrings[1]];
+            current3 = samples[sampsStrings[2]];
+            current4 = samples[sampsStrings[3]];
+        } else {
+            e.innerText = "Play"
+            console.log(synths.length)
+            while (synths.length) {
+                const synth = synths.shift();
+                synth.disconnect()
+            }
+        }
+        function play() {
+            if (loadCount == 0) {
+                console.log("sampsStrings")
+                console.log(sampsStrings)
+                const now = Tone.now() + 0.5;
+                if (midi1) {
+                    midi1.tracks.forEach((track) => {
+                        const synth = current1
+                        synth.sync()
+                        synths.push(synth);
+                        console.log('check push')
+                        track.notes.forEach((note) => {
+                            if (note.time < maxTime) { 
+                                synth.triggerAttackRelease(
+                                    note.name,
+                                    note.duration,
+                                    note.time + now,
+                                    note.velocity
+                                );
+                            }
+                        });
+                        // Tone.Transport.start()
+                    });
+                }
+                if (midi2) {
+                    midi2.tracks.forEach((track) => {
+                        const synth = current2
+                        synth.sync()
+                        synths.push(synth);
+                        console.log('check push')
+                        track.notes.forEach((note) => {
+                            if (note.time < maxTime) { 
+                                synth.triggerAttackRelease(
+                                    note.name,
+                                    note.duration,
+                                    note.time + now,
+                                    note.velocity
+                                );
+                            }
+                        });
+                        // Tone.Transport.start()
+                    });
+                }
+                if (midi3) {
+                    console.log('check func')
+                    midi3.tracks.forEach((track) => {
+                        const synth = current3
+                        synth.sync()
+                        synths.push(synth);
+                        console.log('check push')
+                        track.notes.forEach((note) => {
+                            if (note.time < maxTime) { 
+                                synth.triggerAttackRelease(
+                                    note.name,
+                                    note.duration,
+                                    note.time + now,
+                                    note.velocity
+                                );
+                            }
+                        });
+                        // Tone.Transport.start()
+                    });
+                }
+                if (midi4) {
+                    midi4.tracks.forEach((track) => {
+                        const synth = current4
+                        synth.sync()
+                        synths.push(synth);
+                        console.log('check push')
+                        track.notes.forEach((note) => {
+                            if (note.time < maxTime) { 
+                            synth.triggerAttackRelease(
+                                note.name,
+                                note.duration,
+                                note.time + now,
+                                note.velocity
+                            );
+                            }
+                        });
+                        // Tone.Transport.start()
+                    });
+                }
+                Tone.Transport.start()
+            }
+        }
+    }
+    
+
+    function downloadMidi() {
+        var new_midi = new Midi()
+        midi.tracks.forEach((track) => {
+            const new_track = new_midi.addTrack()
+            track.notes.forEach((note) => {
+                new_track.addNote({
+                    name: note.name,
+                    duration: note.duration,
+                    time: note.time,
+                    velocity: note.velocity
+                })
+            })
+        })
+        midi = new_midi
+        // download(new Buffer(new_midi.toArray()), "out.mid")
+        // fs.writeFileSync("output.mid", new Buffer(new_midi.toArray()))
+    }
+</script>
