@@ -39,7 +39,7 @@
                     <label class="button" id="fileBtn">
                         <input type="file" id="fileInput1" multiple="" onchange="loadFile1()">
                     </label>
-                    <button style="height: 30px;">solo</button>
+                    <button id="solo1" style="height: 30px;" disabled>solo</button>
                     <button style="height: 30px; margin-left: 10px; width: 70px;">Melody</button>
                     <select name="instrument" id="instrument1" style="height: 30px
                     ; margin-left: 10px; width: 160px;" value='solo-violin'>
@@ -49,7 +49,7 @@
                     <label class="button" id="fileBtn">
                         <input type="file" id="fileInput2" multiple="" onchange="loadFile2()">
                     </label>
-                    <button style="height: 30px;">solo</button>
+                    <button id="solo2" style="height: 30px;" disabled>solo</button>
                     <button style="height: 30px; margin-left: 10px; width: 70px;">Chord</button>
                     <select name="instrument" id="instrument2" style="height: 30px
                     ; margin-left: 10px; width: 160px;">
@@ -59,7 +59,7 @@
                     <label class="button" id="fileBtn">
                         <input type="file" id="fileInput3" multiple="" onchange="loadFile3()">
                     </label>
-                    <button style="height: 30px;">solo</button>
+                    <button id="solo3" style="height: 30px;" disabled>solo</button>
                     <button style="height: 30px; margin-left: 10px; width: 70px;">Bass</button>
                     <select name="instrument" id="instrument3" style="height: 30px
                     ; margin-left: 10px; width: 160px;" value='electric-bass-staccato'>
@@ -69,7 +69,7 @@
                     <label class="button" id="fileBtn">
                         <input type="file" id="fileInput4" multiple="" onchange="loadFile4()">
                     </label>
-                    <button style="height: 30px;">solo</button>
+                    <button id="solo4" style="height: 30px;" disabled>solo</button>
                     <button style="height: 30px; margin-left: 10px; width: 70px;">Rhythm</button>
                     <select name="instrument" id="instrument4" style="height: 30px
                     ; margin-left: 10px; width: 160px;" value='grand-piano'>
@@ -79,8 +79,8 @@
         </div>
         <br><br>
         <div style="text-align: center;">
-            <button id="play" onclick="playmidi()">Play</button>
-            <!-- <button onclick="downloadMidi()">Download</button> -->
+            <button onclick="create_audio()">Create Audio</button>
+            <button id="play" onclick="play_audio()" disabled>Play</button>
         </div>
         <div>
             <p id="debug"></p>
@@ -116,6 +116,9 @@
             var is = []
             midi1.tracks.forEach(track => {
                 is.push(track.instrument)
+                track.notes.forEach(note => {
+                    console.log(note.name)
+                })
             })
             const str = JSON.stringify(is);
             console.log(str)
@@ -180,20 +183,22 @@
     var loadCount
     const maxTime = 300
 
-    function playmidi() {
-        const e = document.getElementById('play')
+    function create_audio() {
+        console.log(synths.length)
+        while (synths.length) {
+            const synth = synths.shift();
+            synth.disconnect()
+        }
         loadCount = 0
-        if (e.innerText == "Play") {
-            e.innerText = "Pause"
             
-            sampsStrings = [
-                document.getElementById('instrument1').value,
-                document.getElementById('instrument2').value,
-                document.getElementById('instrument3').value,
-                document.getElementById('instrument4').value,
-            ]
+        sampsStrings = [
+            document.getElementById('instrument1').value,
+            document.getElementById('instrument2').value,
+            document.getElementById('instrument3').value,
+            document.getElementById('instrument4').value,
+        ]
 
-            // loadCount += 1
+           // loadCount += 1
             var drum = SampleLibrary.loadDrum({
                 onload: () => {
                     // console.log('load drum finish')
@@ -202,30 +207,24 @@
                 }
             })
 
-            loadCount += 1
-            var samples = SampleLibrary.load({
-                instruments: sampsStrings,
-                baseUrl: "/samples/",
-                ext: '.mp3',
-                onload: () => {
-                    console.log('load finish')
-                    console.log(sampsStrings)
-                    loadCount -=1
-                    play()
-                }
-            })
-            current1 = samples[sampsStrings[0]];
-            current2 = samples[sampsStrings[1]];
-            current3 = samples[sampsStrings[2]];
-            current4 = samples[sampsStrings[3]];
-        } else {
-            e.innerText = "Play"
-            console.log(synths.length)
-            while (synths.length) {
-                const synth = synths.shift();
-                synth.disconnect()
+
+        loadCount += 1
+        var samples = SampleLibrary.load({
+            instruments: sampsStrings,
+            baseUrl: "/samples/",
+            ext: '.mp3',
+            onload: () => {
+                console.log('load finish')
+                console.log(sampsStrings)
+                loadCount -=1
+                play()
             }
-        }
+        })
+        current1 = samples[sampsStrings[0]];
+        current2 = samples[sampsStrings[1]];
+        current3 = samples[sampsStrings[2]];
+        current4 = samples[sampsStrings[3]];
+
         function play() {
             if (loadCount == 0) {
                 console.log("sampsStrings")
@@ -238,6 +237,7 @@
                         synths.push(synth);
                         console.log('check push')
                         track.notes.forEach((note) => {
+                            console.log('aab')
                             if (note.time < maxTime) { 
                                 synth.triggerAttackRelease(
                                     note.name,
@@ -247,7 +247,6 @@
                                 );
                             }
                         });
-                        // Tone.Transport.start()
                     });
                 }
                 if (midi2) {
@@ -266,7 +265,6 @@
                                 );
                             }
                         });
-                        // Tone.Transport.start()
                     });
                 }
                 if (midi3) {
@@ -286,7 +284,6 @@
                                 );
                             }
                         });
-                        // Tone.Transport.start()
                     });
                 }
                 if (midi4) {
@@ -305,30 +302,87 @@
                             );
                             }
                         });
-                        // Tone.Transport.start()
                     });
                 }
-                Tone.Transport.start()
+                if (synths.length) {
+                    document.getElementById('play').disabled = false
+                    document.getElementById('play').innerText = "Pause"
+                    Tone.Transport.start()
+                }
             }
         }
     }
-    
 
-    function downloadMidi() {
-        var new_midi = new Midi()
-        midi.tracks.forEach((track) => {
-            const new_track = new_midi.addTrack()
-            track.notes.forEach((note) => {
-                new_track.addNote({
-                    name: note.name,
-                    duration: note.duration,
-                    time: note.time,
-                    velocity: note.velocity
-                })
-            })
-        })
-        midi = new_midi
-        // download(new Buffer(new_midi.toArray()), "out.mid")
-        // fs.writeFileSync("output.mid", new Buffer(new_midi.toArray()))
+    function play_audio() {
+        const e = document.getElementById('play')
+        if (e.innerText == "Play") {
+            e.innerText = "Pause"
+            Tone.Transport.start()
+            // Tone.start()
+        } else {
+            e.innerText = "Play"
+            Tone.Transport.pause()
+        }
     }
+
+    var solo
+    
+    document.getElementById('solo1').addEventListener('click', async () => {
+        const loadStr = get_solo('solo1')
+        if (solo) {solo.disconnect()}
+        const e = document.getElementById('play')
+        if (e.innerText == "Pause") {
+            e.innerText = "Play"
+            Tone.Transport.pause()
+        }
+        solo = SampleLibrary.load({
+            instruments: [loadStr],
+            baseUrl: "/samples/",
+            ext: '.mp3',
+            onload: () => {
+                console.log(loadStr)
+                // solo.sync()
+                midi1.tracks.forEach(track => {
+                    track.notes.forEach(note => {
+                        console.log('aaa')
+                        solo.triggerAttackRelease(
+                            note.name,
+                            note.duration,
+                            note.time + now,
+                            note.velocity
+                        );
+                    })
+                })
+                // Tone.Transport.start()
+                // Tone.start()
+            }
+        })[0]
+    })
+
+    function get_solo(key) {
+        sampsStrings = [
+            document.getElementById('instrument1').value,
+            document.getElementById('instrument2').value,
+            document.getElementById('instrument3').value,
+            document.getElementById('instrument4').value,
+        ]
+        switch (key) {
+            case "solo1":
+                return sampsStrings[0]
+                break
+            case "solo2":
+                return sampsStrings[1]
+                break
+            case "solo3":
+                return sampsStrings[2]
+                break
+            case "solo4":
+                return sampsStrings[3]
+                break    
+            default:
+                return sampsStrings[4]
+                break;
+        }
+    }
+
 </script>

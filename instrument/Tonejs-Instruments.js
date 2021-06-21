@@ -69,16 +69,8 @@ var SampleLibrary = {
         return piano
     },
 
-    loadDrum: function(onload) {
-        const drum = new Tone.MembraneSynth({
-            onload: () => {
-                onload()
-            }
-        }).toDestination();
-        return drum
-    },
-
     load: function (arg) {
+        console.log('vo day')
         var t, rt, i;
         (arg) ? t = arg: t = {};
         t.instruments = t.instruments || this.list;
@@ -94,6 +86,7 @@ var SampleLibrary = {
         }
 
         rt = {};
+        console.log(t)
 
         // if an array of instruments is passed...
         if (Array.isArray(t.instruments)) {
@@ -141,7 +134,7 @@ var SampleLibrary = {
             // if a single instrument name is passed...
         } else {
             newT = this[t.instruments];
-
+            console.log(newT)
             //Minimize the number of samples to load
             if (this.minify === true || t.minify === true) {
                 minBy = 1;
@@ -163,15 +156,19 @@ var SampleLibrary = {
                 })
             }
 
-
-
-
-            var s = new Tone.Sampler(
-                newT, {
-                    baseUrl: t.baseUrl + t.instruments + "/",
-                    onload: t.onload
-                }
-            )
+            // var s = new Tone.Sampler(
+            //     newT, {
+            //         baseUrl: t.baseUrl + t.instruments + "/",
+            //         onload: t.onload
+            //     }
+            // )
+            console.log(newT)
+            var s = new Tone.Sampler({
+                urls: newT,
+                release: 1,
+                baseUrl: t.baseUrl + t.instruments + "/",
+                onload: t.onload
+            }).toDestination();
 
             return s
         }
@@ -696,7 +693,7 @@ var SampleLibrary = {
         'C6': 'C6.[mp3|ogg]'
 
     },
-    'classic-rock-kit': {'C2': '36.ogg', 'D#2': '37.ogg', 'D2': '38.ogg', 'F2': '41.ogg', 'G#2': '42.ogg', 'G2': '43.ogg', 'A#2': '44.ogg', 'A2': '45.ogg', 'B#2': '46.ogg', 'B2': '47.ogg', 'C3': '48.ogg', 'D#3': '49.ogg', 'D3': '50.ogg', 'E#3': '51.ogg', 'F3': '53.ogg', 'A#3': '56.ogg'},
+    'classic-rock-kit': {'B1': '36.ogg','C2': '36.ogg','C2#': '37.ogg', 'D2': '38.ogg', 'E2': '38.ogg', 'F2': '41.ogg', 'G#2': '42.ogg', 'G2': '43.ogg', 'A#2': '49.ogg', 'A2': '45.ogg', 'B#2': '46.ogg', 'B2': '47.ogg', 'C#3': '49.ogg', 'D#3': '49.ogg', 'D3': '50.ogg', 'E#3': '51.ogg', 'F3': '53.ogg', 'A#3': '56.ogg'},
     'electric-bass-staccato': {'F1': '29.ogg', 'A#1': '32.ogg', 'B1': '35.ogg', 'D2': '38.ogg', 'F2': '41.ogg', 'A#2': '44.ogg', 'B2': '47.ogg', 'D3': '50.ogg'},
     'grand-piano': {'B#0': '22.ogg', 'D#1': '25.ogg', 'E1': '28.ogg', 'G1': '31.ogg', 'B#1': '34.ogg', 'D#2': '37.ogg', 'E2': '40.ogg', 'G2': '43.ogg', 'B#2': '46.ogg', 'D#3': '49.ogg', 'E3': '52.ogg', 'G3': '55.ogg', 'B#3': '58.ogg', 'D#4': '61.ogg', 'E4': '64.ogg', 'G4': '67.ogg', 'B#4': '70.ogg', 'D#5': '73.ogg', 'E5': '76.ogg', 'G5': '79.ogg', 'B#5': '82.ogg', 'D#6': '85.ogg', 'E6': '88.ogg', 'G6': '91.ogg', 'B#6': '94.ogg', 'D#7': '97.ogg', 'E7': '100.ogg', 'G7': '103.ogg', 'B#7': '106.ogg', 'C8': '108.ogg'},
     'solo-violin': {'A#3': '56.ogg', 'B3': '59.ogg', 'D4': '62.ogg', 'F4': '65.ogg', 'A#4': '68.ogg', 'B4': '71.ogg', 'D5': '74.ogg', 'F5': '77.ogg', 'A#5': '80.ogg', 'B5': '83.ogg', 'D6': '86.ogg', 'F6': '89.ogg', 'A#6': '92.ogg', 'B6': '95.ogg', 'D7': '98.ogg'},
